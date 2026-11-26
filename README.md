@@ -1,6 +1,6 @@
 # byteseek
 
-> [!CAUTION]
+> [!WARNING]
 > This project is being open-sourced earlier than typical in order to transparently demonstrate the power of Opus 5.5/Fable 5.2 in creating software which is faster than state-of-the-art implementations. It has not been fully tested on robust real-world data...yet.
 
 byteseek is modern reimagining of `grep` for logs, code, and structured data, with a command-line tool that is a drop-in replacement for [ripgrep](https://github.com/BurntSushi/ripgrep).
@@ -11,7 +11,7 @@ byteseek is modern reimagining of `grep` for logs, code, and structured data, wi
 
 ![](docs/json.png)
 
-For humans, byteseek has `--p/--pretty` output options which provide more semantic context and coloring to the output, making it much easier to process at-a-glance.
+For humans, byteseek has `-p/--pretty` output options which provide more semantic context and accessible coloring to the output, making it much easier to process at-a-glance.
 
 ![](docs/pretty.png)
 
@@ -56,6 +56,8 @@ The output is similar to `ripgrep/rg`'s, byte for byte, down to its colors and t
 
 A pattern starting with `$.` or `$[` parses each file as a document in the format its extension names: `.json`, `.jsonl`, or `.ndjson` for JSON, `.yaml` or `.yml` for YAML, and `.toml` for TOML. Directories are searched for those files only. `--parse json`, `--parse yaml`, or `--parse toml` picks the format instead, such as for a file with another extension or for stdin. Every pattern then matches one of three ways:
 
+![](docs/json.png)
+
 - Plain text matches inside scalar values, such as `failed`.
 - A pattern starting with `$` matches a path exactly, such as `$.replicas`, or a path with the value written after an `=` without spaces, such as `$.service=payments`.
 - A predicate compares values with `==` (or `=` with spaces around it), `!=`, `>`, `>=`, `<`, `<=`, or `BETWEEN 100 AND 1000`, and clauses join with `AND`. A predicate's path matches at any depth and its clauses must hold within the same object, so `$.payload.latency_ms > 1000` checks every event's `payload`.
@@ -72,11 +74,17 @@ JSON Lines are searched like `jq` reads them: each value is its own document who
 
 `-p/--pretty` is opt-in as its layout differs from `ripgrep`'s and it is optimized for better human readbility. JSON/YAML/TOML syntax highlighting will be displayed for those searches.
 
+#### JSON
+
 ![](docs/json-pretty.png)
 
-![](docs/toml-pretty.png)
+#### YAML
 
 ![](docs/yaml-pretty.png)
+
+#### TOML
+
+![](docs/toml-pretty.png)
 
 ## Fuzzy and Boolean Predicate Search
 
