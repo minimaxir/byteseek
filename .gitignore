@@ -1,0 +1,56 @@
+.DS_Store
+*.parquet
+*.nosync
+.env
+.venv
+test_notebooks/
+notebooks/output/
+.vscode/
+__pycache__/
+.ipynb_checkpoints
+dist/
+build/
+uv.lock
+Cargo.lock
+
+
+/web/assets
+/web/package
+/target
+/assets
+
+/test_output
+/test_outputs
+
+# MkDocs generated site
+site/
+
+# Added by cargo
+*/target
+
+# Python build artifacts
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+wheels/
+*.whl
+*.egg
+*.pyd
+
+# Test files
+test_python.py
+
+# Local refactor benchmark artifacts
+/.refactor-validation/
+
+# Test, benchmark and profiler output
+*.log
+*.txt
+
+# Rust coverage
+*.profraw
+*.profdata
+coverage/
+lcov.info
