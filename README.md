@@ -3,7 +3,7 @@
 > [!WARNING]
 > This project is being open-sourced earlier than typical in order to transparently demonstrate the power of Opus 5.5/Fable 5.2 in creating software which is faster than state-of-the-art implementations. It has not been fully tested on robust real-world data...yet.
 
-byteseek is modern reimagining of `grep` for logs, code, and structured data, with a command-line tool that is a drop-in replacement for [ripgrep](https://github.com/BurntSushi/ripgrep).
+byteseek is modern reimplementation of `grep` for logs, code, and structured data, with a command-line tool that is a drop-in replacement for [ripgrep](https://github.com/BurntSushi/ripgrep) at faster speeds with a few more fancy tools.
 
 ![](docs/default.png)
 
@@ -22,7 +22,7 @@ More useful features of `byteseek`:
 - **Fuzzy matching** with `-k/--max-errors`, which finds text within N typos (insertions, deletions, or substitutions) of a pattern. A search for `timeout` also catches the `timout` someone wrote at 3 AM.
 - **Boolean queries** with `--query`, which select lines that contain every required term in any order, such as `'ERROR AND payments AND NOT retrying'`.
 - **Python bindings** with full type hints that release the GIL while searching, so searches from multiple threads run in parallel. See the [Jupyter Notebook](notebooks/byteseek_demo.ipynb) for more demos.
-- **Strong performance** at a low memory footprint: on ripgrep's own benchmark corpora, the `byteseek` CLI is 1.1x to 7.5x faster than `rg` end to end with about half of its peak memory, and the Python bindings exceeding optimized packages such as pyahocorsick and orjson. ([Benchmarks](#performance))
+- **Strong performance** at a low memory footprint: on ripgrep's own benchmark corpora, the `byteseek` CLI is 1.1x to 7.5x faster than `rg` end to end with about half of its peak memory, and the Python bindings significantly surpassing optimized packages in this domain such as [pyahocorasick](https://github.com/WojciechMula/pyahocorasick) and [orjson](https://github.com/ijl/orjson). ([Benchmarks](#performance))
 
 The [notebooks folder](notebooks) contains a Jupyter Notebook tour of the Python API.
 
