@@ -164,17 +164,11 @@ println!("{}", report.render_top_files_table(10));
 
 ## Performance
 
-These results are for ripgrep's own [benchsuite](https://github.com/BurntSushi/ripgrep/tree/master/benchsuite) searches on its English subtitles corpus, comparing the `byteseek` and `rg` (15.2.0) command-line tools end to end on an Apple M3 Pro: each run starts a process, reads the file, and writes a count of matching lines.
+These results are for ripgrep's own [benchsuite](https://github.com/BurntSushi/ripgrep/tree/master/benchsuite) searches on its English subtitles corpus, comparing the `byteseek` and `rg` (16.0.0) command-line tools end to end on an Apple M3 Pro: each run starts a process, reads the file, and writes a count of matching lines.
 
-| Search                  | `byteseek` | `rg`     | Speedup | Peak memory, `byteseek` / `rg` |
-| ----------------------- | ---------- | -------- | ------- | ------------------------------ |
-| literal                 | 113 ms     | 152 ms   | 1.34x   | 2.7 / 5.1 MiB                  |
-| literal, ignore case    | 136 ms     | 262 ms   | 1.93x   | 2.7 / 5.3 MiB                  |
-| literal, whole word     | 126 ms     | 154 ms   | 1.22x   | 2.6 / 5.2 MiB                  |
-| alternates              | 178 ms     | 262 ms   | 1.47x   | 2.8 / 5.2 MiB                  |
-| alternates, ignore case | 208 ms     | 1,566 ms | 7.52x   | 2.9 / 5.6 MiB                  |
+![](docs/cli_speedup-light.min.svg)
 
-On the benchsuite's Russian subtitles and Linux kernel corpora, `byteseek` is 1.14x to 2.10x faster. As a library searching text already in memory, `byteseek` ties `ripgrep`'s searcher on the benchsuite's whole-word searches and is 1.3x to 13.6x faster on the rest. ([Methodology](RIPGREP_COMPARISON.md))
+See [BENCHMARKS.md](BENCHMARKS.md) for absolute timings and Python comparisons.
 
 ## AI Disclosure
 
