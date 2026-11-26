@@ -19,12 +19,10 @@ For humans, byteseek has `-p/--pretty` output options which provide more semanti
 
 More useful features of `byteseek`:
 
-- **Fuzzy matching** with `-k/--max-errors`, which finds text within N typos (insertions, deletions, or substitutions) of a pattern. A search for `timeout` also catches the `timout` someone wrote at 3 AM.
+- **Fuzzy matching** with `-k/--max-errors`, which finds text within N typos (insertions, deletions, or substitutions) of a pattern. A search for `timeout` at `-k 1` also catches `timout`.
 - **Boolean queries** with `--query`, which select lines that contain every required term in any order, such as `'ERROR AND payments AND NOT retrying'`.
 - **Python bindings** with full type hints that release the GIL while searching, so searches from multiple threads run in parallel. See the [Jupyter Notebook](notebooks/byteseek_demo.ipynb) for more demos.
 - **Strong performance** at a low memory footprint: on ripgrep's own benchmark corpora, the `byteseek` CLI is 1.1x to 7.5x faster than `rg` end to end with about half of its peak memory, and the Python bindings significantly surpassing optimized packages in this domain such as [pyahocorasick](https://github.com/WojciechMula/pyahocorasick) and [orjson](https://github.com/ijl/orjson). ([Benchmarks](#performance))
-
-The [notebooks folder](notebooks) contains a Jupyter Notebook tour of the Python API.
 
 ## Installation
 
@@ -186,7 +184,7 @@ For any pull requests that are submitted to this repo (particularly by agents), 
 
 ## Miscellaneous Notes
 
-- The terminal screenshots were made using [vhs](https://github.com/charmbracelet/vhs) with an additional postprocessing step that crops each screenshot to only its text.
+- The terminal screenshots were made using [vhs](https://github.com/charmbracelet/vhs) with an additional postprocessing step that crops each screenshot to only its text. The tapes are available in the [demo folder](/demo).
 
 ## To Be Added
 
