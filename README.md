@@ -3,14 +3,24 @@
 > [!CAUTION]
 > This project is being open-sourced earlier than typical in order to transparently demonstrate the power of Opus 5.5/Fable 5.2 in creating software which is faster than state-of-the-art implementations. It has not been fully tested on robust real-world data...yet.
 
-byteseek is modern reimagining of `grep` for logs, code, and structured data, with a command-line tool that is a drop-in replacement for [ripgrep](https://github.com/BurntSushi/ripgrep)
+byteseek is modern reimagining of `grep` for logs, code, and structured data, with a command-line tool that is a drop-in replacement for [ripgrep](https://github.com/BurntSushi/ripgrep).
 
-`byteseek` can also parse JSON, YAML, and TOML files and search them by [jq](https://jqlang.org)-style path, by value, or with predicates such as `$.payload.latency_ms > 1000`, which is handy for configs and API dumps where a line-based `grep` loses track of what a value means.
+![](docs/default.png)
+
+`byteseek` can also parse JSON, YAML, and TOML files and search them by [jq](https://jqlang.org)-style path, by value, or with predicates such as `$.payload.latency_ms > 1000`.
+
+![](docs/json.png)
+
+For humans, byteseek has `--p/--pretty` output options which provide more semantic context and coloring to the output, making it much easier to process at-a-glance.
+
+![](docs/pretty.png)
+
+![](docs/predicates.png)
 
 More useful features of `byteseek`:
 
 - **Fuzzy matching** with `-k/--max-errors`, which finds text within N typos (insertions, deletions, or substitutions) of a pattern. A search for `timeout` also catches the `timout` someone wrote at 3 AM.
-- **Boolean predicate queries** with `--query`, which select lines that contain every required term in any order, such as `'ERROR AND payments AND NOT retrying'`.
+- **Boolean queries** with `--query`, which select lines that contain every required term in any order, such as `'ERROR AND payments AND NOT retrying'`.
 - **Python bindings** with full type hints that release the GIL while searching, so searches from multiple threads run in parallel. See the [Jupyter Notebook](notebooks/byteseek_demo.ipynb) for more demos.
 - **Strong performance** at a low memory footprint: on ripgrep's own benchmark corpora, the `byteseek` CLI is 1.1x to 7.5x faster than `rg` end to end with about half of its peak memory, and the Python bindings exceeding optimized packages such as pyahocorsick and orjson. ([Benchmarks](#performance))
 
@@ -36,11 +46,11 @@ uv pip install byteseek
 
 The Python package also installs the full `byteseek` command line, compiled into the package itself, so `byteseek` (or `python -m byteseek`) works without Cargo and takes the same flags as the native binary.
 
-## Demo
+## Usage
 
-Run `byteseek` with a pattern to search every file under the current directory, skipping hidden files, binary files, and anything matched by a `.gitignore`. Any `ripgrep` command that uses literal patterns works unchanged, including `-e` for multiple patterns, `-i/-S` for case, `-w/-x` for whole words and lines, `-A/-B/-C` for context, `-c/-l/-o` for counts, files, and matches, `-g/-t` for globs and file types, and `--column/-0` for editors and `xargs`:
+Run `byteseek` with a pattern to search every file under the current directory, skipping hidden files, binary files, and anything matched by a `.gitignore`. Any `ripgrep` command that uses literal patterns works unchanged, including `-e` for multiple patterns, `-i/-S` for case, `-w/-x` for whole words and lines, `-A/-B/-C` for context, `-c/-l/-o` for counts, files, and matches, `-g/-t` for globs and file types, and `--column/-0` for editors and `xargs`.
 
-The output is similar to `ripgrep/rg`'s, byte for byte, down to its colors and the order files print in, as their searches finish: this search through the source of [axum](https://github.com/tokio-rs/axum) for how it limits request bodies is the same one shown with `--pretty` at the top of this README, which lists files the most recently changed first instead. `--sort recent` orders plain output that way too, and `--sort path` orders it by path, as in `rg`.
+The output is similar to `ripgrep/rg`'s, byte for byte, down to its colors and the order files print in, as their searches finish: this search through the source of [axum](https://github.com/tokio-rs/axum) for how it limits request bodies is the same one shown with `--pretty` at the top of this README, which lists files the most recently changed first instead. `--sort recent` orders plain output that way and `--sort path` orders it by path, as in `rg`.
 
 ## Structured Search
 
@@ -62,20 +72,19 @@ JSON Lines are searched like `jq` reads them: each value is its own document who
 
 `-p/--pretty` is opt-in as its layout differs from `ripgrep`'s and it is optimized for better human readbility. JSON/YAML/TOML syntax highlighting will be displayed for those searches.
 
+![](docs/json-pretty.png)
+
+![](docs/toml-pretty.png)
+
+![](docs/yaml-pretty.png)
+
 ## Fuzzy and Boolean Predicate Search
 
 `-k N` also matches text within N edits of each pattern, which catches typos and OCR errors that an exact search misses. `--query` treats each pattern as a boolean query over the terms in a line, in any order, and highlights the terms that made the line match:
 
-A line selected only through `NOT`, such as by `NOT INFO`, has no terms to show, so the whole line is its match. Without `--pretty`, lines print in `ripgrep`'s format:
+![](docs/fuzzy.png)
 
-```
-$ byteseek --query 'ERROR AND NOT retrying' logs
-logs/worker.log:09:14:31 worker-2 ERROR job 4415 timout waiting for smtp relay
-logs/api.log:2026-11-21T09:14:09Z ERROR request_id=a822 method=POST path=/payments status=500 latency_ms=3011 upstream timeout from payments-gateway
-logs/api.log:2026-11-21T09:14:12Z ERROR request_id=a824 method=POST path=/payments status=502 latency_ms=120 bad gateway: connection reset by peer
-```
-
-## In-Memory APIs
+## In-Memory Searcher APIs
 
 ### Python
 
@@ -124,7 +133,7 @@ $.events[4].payload.status "failed"
 
 ### Rust
 
-The same `Searcher` is available as a Rust library, along with its reports. Turning off the default `cli` feature leaves out the command-line tool's dependencies:
+The same `Searcher` is available as a Rust library. Turning off the default `cli` feature leaves out the command-line tool's dependencies:
 
 ```toml
 [dependencies]
@@ -163,9 +172,9 @@ On the benchsuite's Russian subtitles and Linux kernel corpora, `byteseek` is 1.
 
 ## AI Disclosure
 
-`byteseek` was mostly made using Claude Opus 5.5 and Fable 5.2 with checks and balances as an experiment into how far an agent can push a search engine's performance at the instruction level against `ripgrep`, one of the most heavily optimized command-line tools there is.
+`byteseek` was mostly made using Claude Opus 5.5 and Fable 5.2 with checks and balances as an experiment into how far an agent can push a search engine's performance against `ripgrep`, one of the most heavily optimized command-line tools there is.
 
-For any pull requests that are submitted to this repo (particularly by agents), please manually review the output and ensure any changes are high signal and precisely scoped: both a) low-effort PRs that cause more problems than they solve and b) nontechnical discussions about the use of agentic development may be closed without comment.
+For any pull requests that are submitted to this repo (particularly by agents), please manually review the output and ensure any changes and suggestions are high signal and precisely scoped: both a) low-effort PRs that cause more problems than they solve and b) nontechnical discussions about the use of agentic development may be closed without comment.
 
 ## Miscellaneous Notes
 
