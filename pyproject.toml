@@ -1,0 +1,49 @@
+[build-system]
+requires = ["maturin==1.16.0"]
+build-backend = "maturin"
+
+[project]
+name = "byteseek"
+# Taken from Cargo.toml so the crate and the wheels always release together.
+dynamic = ["version"]
+description = "Fast literal and fuzzy text search with JSON/YAML/TOML search, written in Rust"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "byteseek contributors" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Rust",
+]
+
+[project.scripts]
+byteseek = "byteseek.__main__:main"
+
+[project.urls]
+Repository = "https://github.com/minimaxir/byteseek"
+
+[tool.maturin]
+python-source = "python"
+module-name = "byteseek._byteseek"
+# The `python` feature brings the command line in; the binary's default features are not needed.
+no-default-features = true
+features = ["python"]
+
+[tool.pytest.ini_options]
+testpaths = ["python/tests"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_configs = true
+files = ["python/byteseek"]
+
+[dependency-groups]
+bench = [
+    "orjson>=3.13.0",
+    "pyahocorasick>=2.3.1",
+    "pyyaml>=6.0.4",
+    "rtoml>=0.14.0",
+    "types-pyyaml>=6.0.12.20261122",
+]
