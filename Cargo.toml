@@ -1,0 +1,150 @@
+[package]
+name = "byteseek"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.96"
+description = "Fast literal and fuzzy text search with a ripgrep-compatible CLI and JSON/YAML/TOML search"
+license = "MIT"
+repository = "https://github.com/minimaxir/byteseek"
+readme = "README.md"
+keywords = ["grep", "search", "ripgrep", "json", "cli"]
+categories = ["command-line-utilities", "text-processing", "parser-implementations"]
+# The integration tests share code with the benches, so only the crate itself ships.
+include = ["/src/**/*", "/LICENSE", "/README.md"]
+
+[package.metadata.docs.rs]
+# The library API is the same with or without the CLI and Python bindings.
+no-default-features = true
+
+[lib]
+name = "byteseek"
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = ["cli"]
+# Dependencies of the command line only, so library builds can leave them out.
+cli = [
+    "dep:anyhow",
+    "dep:clap",
+    "dep:gethostname",
+    "dep:jiff",
+    "dep:regex-syntax",
+    "dep:simdutf8",
+    "dep:terminal_size",
+    "dep:tracing",
+    "dep:tracing-subscriber",
+    "dep:unicode-width",
+]
+# The Python package ships the command line as its `byteseek` console script.
+python = ["cli", "dep:pyo3", "dep:serde"]
+
+[dependencies]
+aho-corasick = "1.1.5"
+anyhow = { version = "1.0.104", optional = true }
+# Splits bytes that need not be UTF-8 into lines; `ignore` already builds it.
+bstr = { version = "1.14.0", default-features = false, features = ["std"] }
+clap = { version = "4.6.9", features = ["derive", "wrap_help"], optional = true }
+# Names this machine in the `file://` hyperlinks of `--pretty`, as terminals expect.
+gethostname = { version = "1.1.0", optional = true }
+grep-matcher = "0.1.10"
+grep-regex = "0.1.15"
+# Allocation-free arena-keyed lookups for structured predicate objects.
+hashbrown = "0.17.2"
+ignore = "0.4.35"
+itoa = "1.0.19"
+# Shows when files last changed in local time; `time` reads the local offset single-threaded only.
+# Only the system time zone and its database are needed; Windows has no database to read.
+jiff = { version = "1.0.2", optional = true, default-features = false, features = ["std", "tz-system", "tzdb-zoneinfo"] }
+json-spanned-value = "0.2.2"
+libyaml-safer = "0.3.0"
+memchr = "2.8.3"
+# The stable ABI lets one wheel per platform serve Python 3.11 and newer.
+pyo3 = { version = "0.29.3", optional = true, features = ["abi3-py311"] }
+rayon = "1.12.0"
+# Tells regular expressions that are plain literals, like `foo\.bar`, from the rest.
+regex-syntax = { version = "0.8.12", optional = true }
+# Reads JSON values into Python objects in one pass, for `StructuredMatch.value()`.
+serde = { version = "1.0.229", optional = true }
+serde_json = "1.0.154"
+# Checks searched text is UTF-8 with SIMD, many times faster than `std` on ASCII.
+simdutf8 = { version = "0.1.5", optional = true }
+smallvec = { version = "1.15.1", features = ["union"] }
+# Moves deep parses and visits onto a heap stack segment when a thread's stack runs low.
+stacker = "0.1.25"
+terminal_size = { version = "0.4.4", optional = true }
+thiserror = "2.0.21"
+time = { version = "0.3.55", features = ["parsing"] }
+toml-spanner = { version = "1.0.3", default-features = false }
+tracing = { version = "0.1.44", optional = true }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "std"], optional = true }
+triple_accel = "0.4.0"
+unicode-width = { version = "0.2.3", optional = true }
+
+[target.'cfg(windows)'.dependencies]
+jiff = { version = "1.0.2", optional = true, default-features = false, features = ["tzdb-bundle-platform"] }
+
+[lints.rust]
+# SIMD kernels are safe block loops the compiler vectorizes, so nothing here needs `unsafe`.
+unsafe_code = "deny"
+
+[[bin]]
+name = "byteseek"
+path = "src/bin/byteseek/main.rs"
+required-features = ["cli"]
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+
+[dev-dependencies]
+criterion = { version = "0.8.2", features = ["html_reports"] }
+grep-searcher = "0.1.18"
+# Tracks the peak of allocated bytes for the memory comparison benchmark.
+peakmem-alloc = "0.3.0"
+tempfile = "3.27.0"
+# Reports the peak resident set size of the command-line tools the benchmarks run.
+wait4 = "0.2.0"
+
+[[bench]]
+name = "search_bench"
+harness = false
+
+[[bench]]
+name = "approach_comparison"
+harness = false
+
+[[bench]]
+name = "ripgrep_comparison"
+harness = false
+
+[[bench]]
+name = "ripgrep_benchsuite"
+harness = false
+
+[[bench]]
+name = "ripgrep_memory"
+harness = false
+
+[[bench]]
+name = "approximate_bench"
+harness = false
+
+[[bench]]
+name = "agrep_comparison"
+harness = false
+
+[[bench]]
+name = "structured_bench"
+harness = false
+
+[[bench]]
+name = "file_traversal_bench"
+harness = false
+
+[[bench]]
+name = "reporting_bench"
+harness = false
+
+[[bench]]
+name = "generalization_bench"
+harness = false
