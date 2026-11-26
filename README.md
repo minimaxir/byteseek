@@ -192,6 +192,7 @@ For any pull requests that are submitted to this repo (particularly by agents), 
 
 - More tests with real-world data
 - More feature parity with ripgrep (still deciding on which important features are NYI)
+- May need to revaluate faded coloring semantics for `pretty` output depending on what information is most useful at a glance
 
 ## Maintainer/Creator
 
