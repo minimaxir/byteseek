@@ -3,7 +3,7 @@
 > [!WARNING]
 > This project is being open-sourced earlier than typical in order to transparently demonstrate the power of Opus 5.5/Fable 5.2 in creating software which is faster than state-of-the-art implementations. It has not been fully tested on robust real-world data...yet.
 
-byteseek is modern reimplementation of `grep` for logs, code, and structured data, with a command-line tool that is a drop-in replacement for [ripgrep](https://github.com/BurntSushi/ripgrep) at faster speeds with a few more fancy tools.
+byteseek is modern reimplementation of `grep` for logs, code, and structured data, with a command-line tool that is a drop-in replacement for most of [ripgrep](https://github.com/BurntSushi/ripgrep) at faster speeds with a few more fancy tools.
 
 ![](docs/default.png)
 
@@ -46,9 +46,17 @@ The Python package also installs the full `byteseek` command line, compiled into
 
 ## Usage
 
-Run `byteseek` with a pattern to search every file under the current directory, skipping hidden files, binary files, and anything matched by a `.gitignore`. Any `ripgrep` command that uses literal patterns works unchanged, including `-e` for multiple patterns, `-i/-S` for case, `-w/-x` for whole words and lines, `-A/-B/-C` for context, `-c/-l/-o` for counts, files, and matches, `-g/-t` for globs and file types, and `--column/-0` for editors and `xargs`.
+Run `byteseek` with a pattern to search every file under the current directory, skipping hidden files, binary files, and anything matched by a `.gitignore`. Any `ripgrep` command that uses literal patterns works unchanged, including `-e` for multiple patterns, `-i/-S` for case, `-w/-x` for whole words and lines, `-A/-B/-C` for context, `-c/-l/-o` for counts, files, and matches, `-g/-t` for globs and file types, and `--column/-0` for editors and `xargs`. `--sort recent` orders plain output by the file's last Git commit/last modified and `--sort path` orders it by path, as in `rg`.
 
-The output is similar to `ripgrep/rg`'s, byte for byte, down to its colors and the order files print in, as their searches finish: this search through the source of [axum](https://github.com/tokio-rs/axum) for how it limits request bodies is the same one shown with `--pretty` at the top of this README, which lists files the most recently changed first instead. `--sort recent` orders plain output that way and `--sort path` orders it by path, as in `rg`.
+```sh
+byteseek -e Claude src
+```
+
+```sh
+byteseek -i -e Claude -e GPT src
+```
+
+The output is similar to `ripgrep/rg`'s.
 
 ## Structured Search
 
@@ -59,10 +67,6 @@ A pattern starting with `$.` or `$[` parses each file as a document in the forma
 - Plain text matches inside scalar values, such as `failed`.
 - A pattern starting with `$` matches a path exactly, such as `$.replicas`, or a path with the value written after an `=` without spaces, such as `$.service=payments`.
 - A predicate compares values with `==` (or `=` with spaces around it), `!=`, `>`, `>=`, `<`, `<=`, or `BETWEEN 100 AND 1000`, and clauses join with `AND`. A predicate's path matches at any depth and its clauses must hold within the same object, so `$.payload.latency_ms > 1000` checks every event's `payload`.
-
-Each match prints as `PATH:VALUE`, here listing the React and TypeScript versions that each package of a monorepo depends on:
-
-With `--pretty`, each file's paths and values line up in columns:
 
 Predicates compare numbers, strings, booleans, and RFC 3339 timestamps, and skip values that are null or of another type; `--strict` makes those an error instead. A quoted literal is always a string or a timestamp, so `== "2018"` matches the string `"2018"` and not the number `2018`.
 
@@ -91,6 +95,8 @@ JSON Lines are searched like `jq` reads them: each value is its own document who
 ![](docs/fuzzy.png)
 
 ## In-Memory Searcher APIs
+
+byteseek is substantially faster in-memory than on disk if the text is also loaded in-memory.
 
 ### Python
 
@@ -135,7 +141,7 @@ $.events[4].payload.latency_ms 2200
 $.events[4].payload.status "failed"
 ```
 
-[Jupyter Notebook with a tour of the Python API](notebooks/byteseek_demo.ipynb).
+View the [Jupyter Notebook](notebooks/byteseek_demo.ipynb) for more examples.
 
 ### Rust
 
@@ -172,9 +178,9 @@ See [BENCHMARKS.md](BENCHMARKS.md) for absolute timings and Python comparisons.
 
 ## AI Disclosure
 
-`byteseek` was mostly made using Claude Opus 5.5 and Fable 5.2 with checks and balances as an experiment into how far an agent can push a search engine's performance against `ripgrep`, one of the most heavily optimized command-line tools there is.
+`byteseek` was mostly made using Claude Opus 5.5 and Fable 5.2 with quality checks and balances as an experiment into how far an agent can push a search engine's performance against `ripgrep`, one of the most heavily optimized command-line tools there is.
 
-For any pull requests that are submitted to this repo (particularly by agents), please manually review the output and ensure any changes and suggestions are high signal and precisely scoped: both a) low-effort PRs that cause more problems than they solve and b) nontechnical discussions about the use of agentic development may be closed without comment.
+For any Issues and Pull Requests that are submitted to this repo (particularly by agents), please manually review the output and ensure any suggestions and changes are high signal and precisely scoped: both a) low-effort PRs that cause more problems than they solve and b) nontechnical discussions about the use of agentic development may be closed without comment.
 
 ## Miscellaneous Notes
 
@@ -184,7 +190,7 @@ For any pull requests that are submitted to this repo (particularly by agents), 
 
 - More tests with real-world data
 - More feature parity with ripgrep (still deciding on which important features are NYI)
-- May need to revaluate faded coloring semantics for `pretty` output depending on what information is most useful at a glance
+- May need to revaluate faded coloring semantics for `pretty` output depending on what information is most useful at a glance for humans
 
 ## Maintainer/Creator
 
