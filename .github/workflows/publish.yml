@@ -8,7 +8,9 @@ permissions: {}
 
 jobs:
   # The extension uses the stable ABI (abi3-py311), so one wheel per platform serves
-  # Python 3.11 and newer. Other platforms build from the sdist.
+  # Python 3.11 and newer. Other platforms build from the sdist. Each wheel targets a single
+  # platform tag: universal2 macOS wheels carry both architectures, and manylinux2014 wheels
+  # carry a second, legacy tag.
   wheels:
     runs-on: ${{ matrix.platform.runner }}
     permissions:
@@ -18,7 +20,8 @@ jobs:
         platform:
           - { runner: ubuntu-latest, target: x86_64 }
           - { runner: ubuntu-latest, target: aarch64 }
-          - { runner: macos-latest, target: universal2-apple-darwin }
+          - { runner: macos-latest, target: aarch64 }
+          - { runner: macos-latest, target: x86_64 }
           - { runner: windows-latest, target: x64 }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -31,12 +34,57 @@ jobs:
       - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           target: ${{ matrix.platform.target }}
-          manylinux: auto
+          manylinux: 2_28
           args: --release --locked --out dist
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: wheels-${{ matrix.platform.target }}
+          name: wheels-${{ runner.os }}-${{ matrix.platform.target }}
           path: dist
+
+  # Static musl binaries run on any Linux distribution regardless of its glibc.
+  cli:
+    runs-on: ${{ matrix.platform.runner }}
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        platform:
+          - { runner: ubuntu-latest, target: x86_64-unknown-linux-musl }
+          - { runner: ubuntu-24.04-arm, target: aarch64-unknown-linux-musl }
+          - { runner: macos-latest, target: aarch64-apple-darwin }
+          - { runner: macos-latest, target: x86_64-apple-darwin }
+          - { runner: windows-latest, target: x86_64-pc-windows-msvc }
+    env:
+      TARGET: ${{ matrix.platform.target }}
+      CARGO_PROFILE_RELEASE_STRIP: symbols
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # `stacker` compiles C and assembly, which needs a musl C compiler.
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+      - run: rustup target add "$TARGET"
+        shell: bash
+      - run: cargo build --release --locked --target "$TARGET"
+        shell: bash
+      - shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          name="byteseek-$GITHUB_REF_NAME-$TARGET"
+          mkdir "$name"
+          cp LICENSE README.md "$name"
+          if [ "$RUNNER_OS" = Windows ]; then
+            cp "target/$TARGET/release/byteseek.exe" "$name"
+            7z a "$name.zip" "$name"
+            asset="$name.zip"
+          else
+            cp "target/$TARGET/release/byteseek" "$name"
+            tar czf "$name.tar.gz" "$name"
+            asset="$name.tar.gz"
+          fi
+          gh release upload "$GITHUB_REF_NAME" "$asset" --clobber --repo "$GITHUB_REPOSITORY"
 
   sdist:
     runs-on: ubuntu-latest

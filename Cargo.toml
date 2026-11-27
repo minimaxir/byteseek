@@ -3,16 +3,12 @@ name = "byteseek"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.96"
-description = "Fast text search with a ripgrep-compatible CLI and JSON/YAML/TOML search"
+description = "Fast literal and fuzzy text search with a ripgrep-compatible CLI and JSON/YAML/TOML search"
 license = "MIT"
 repository = "https://github.com/minimaxir/byteseek"
 readme = "README.md"
 keywords = ["grep", "search", "ripgrep", "json", "cli"]
-categories = [
-    "command-line-utilities",
-    "text-processing",
-    "parser-implementations",
-]
+categories = ["command-line-utilities", "text-processing", "parser-implementations"]
 # The integration tests share code with the benches, so only the crate itself ships.
 include = ["/src/**/*.rs", "/LICENSE", "/README.md"]
 
@@ -47,10 +43,7 @@ aho-corasick = "1.1.5"
 anyhow = { version = "1.0.104", optional = true }
 # Splits bytes that need not be UTF-8 into lines; `ignore` already builds it.
 bstr = { version = "1.14.0", default-features = false, features = ["std"] }
-clap = { version = "4.6.9", features = [
-    "derive",
-    "wrap_help",
-], optional = true }
+clap = { version = "4.6.9", features = ["derive", "wrap_help"], optional = true }
 # Names this machine in the `file://` hyperlinks of `--pretty`, as terminals expect.
 gethostname = { version = "1.1.0", optional = true }
 grep-matcher = "0.1.10"
@@ -61,11 +54,7 @@ ignore = "0.4.35"
 itoa = "1.0.19"
 # Shows when files last changed in local time; `time` reads the local offset single-threaded only.
 # Only the system time zone and its database are needed; Windows has no database to read.
-jiff = { version = "1.0.2", optional = true, default-features = false, features = [
-    "std",
-    "tz-system",
-    "tzdb-zoneinfo",
-] }
+jiff = { version = "1.0.2", optional = true, default-features = false, features = ["std", "tz-system", "tzdb-zoneinfo"] }
 json-spanned-value = "0.2.2"
 libyaml-safer = "0.3.0"
 memchr = "2.8.3"
@@ -87,17 +76,12 @@ thiserror = "2.0.21"
 time = { version = "0.3.55", features = ["parsing"] }
 toml-spanner = { version = "1.0.3", default-features = false }
 tracing = { version = "0.1.44", optional = true }
-tracing-subscriber = { version = "0.3.23", default-features = false, features = [
-    "fmt",
-    "std",
-], optional = true }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "std"], optional = true }
 triple_accel = "0.4.0"
 unicode-width = { version = "0.2.3", optional = true }
 
 [target.'cfg(windows)'.dependencies]
-jiff = { version = "1.0.2", optional = true, default-features = false, features = [
-    "tzdb-bundle-platform",
-] }
+jiff = { version = "1.0.2", optional = true, default-features = false, features = ["tzdb-bundle-platform"] }
 
 [lints.rust]
 # SIMD kernels are safe block loops the compiler vectorizes, so nothing here needs `unsafe`.

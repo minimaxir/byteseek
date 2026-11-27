@@ -29,6 +29,7 @@ module-name = "byteseek._byteseek"
 # The `python` feature brings the command line in; the binary's default features are not needed.
 no-default-features = true
 features = ["python"]
+strip = true
 
 [tool.pytest.ini_options]
 testpaths = ["python/tests"]
