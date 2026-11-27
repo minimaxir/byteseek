@@ -26,13 +26,13 @@ More useful features of `byteseek`:
 
 ## Installation
 
-The CLI installs from crates.io with Cargo (Rust 1.96+):
+The CLI installs [from crates.io](https://crates.io/crates/byteseek) with Cargo (Rust 1.96+):
 
 ```sh
 cargo install byteseek
 ```
 
-In Python:
+In Python, [from PyPI](https://pypi.org/project/byteseek/):
 
 ```sh
 pip3 install byteseek
