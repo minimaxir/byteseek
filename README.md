@@ -19,9 +19,9 @@ For humans, byteseek has `-p/--pretty` output options which provide more semanti
 
 More useful features of `byteseek`:
 
-- **Fuzzy matching** with `-k/--max-errors`, which finds text within N typos (insertions, deletions, or substitutions) of a pattern. A search for `timeout` at `-k 1` also catches `timout`.
-- **Boolean queries** with `--query`, which select lines that contain every required term in any order, such as `'ERROR AND payments AND NOT retrying'`.
-- **Python bindings** with full type hints that release the GIL while searching, so searches from multiple threads run in parallel. See the [Jupyter Notebook](notebooks/byteseek_demo.ipynb) for more demos.
+- **Fuzzy matching** with `-k/--max-errors`, which finds text within N typos (insertions, deletions, or substitutions) of a pattern. For example, searching for `timeout` at `-k 1` also catches `timout`.
+- **Boolean queries** with `--query`, which select lines that contain every required term in any order such as `'ERROR AND payments AND NOT retrying'`.
+- **Python bindings** with full type hints that release the GIL while searching which allows searches from multiple threads run in parallel. See the [Jupyter Notebook](notebooks/byteseek_demo.ipynb) for more demos.
 - **Strong performance** at a low memory footprint: on ripgrep's own benchmark corpora, the `byteseek` CLI is 1.1x to 7.5x faster than `rg` end to end with about half of its peak memory, and the Python bindings significantly surpassing optimized packages in this domain such as [pyahocorasick](https://github.com/WojciechMula/pyahocorasick) and [orjson](https://github.com/ijl/orjson). ([Benchmarks](#performance))
 
 ## Installation
@@ -60,9 +60,11 @@ The output is similar to `ripgrep/rg`'s.
 
 ## Structured Search
 
-A pattern starting with `$.` or `$[` parses each file as a document in the format its extension names: `.json`, `.jsonl`, or `.ndjson` for JSON, `.yaml` or `.yml` for YAML, and `.toml` for TOML. Directories are searched for those files only. `--parse json`, `--parse yaml`, or `--parse toml` picks the format instead, such as for a file with another extension or for stdin. Every pattern then matches one of three ways:
+A pattern starting with `$.` or `$[` parses each file as a document in the format its extension names: `.json`, `.jsonl`, or `.ndjson` for JSON, `.yaml` or `.yml` for YAML, and `.toml` for TOML. `--parse json`, `--parse yaml`, or `--parse toml` picks the format instead, such as for a file with another extension or for stdin.
 
 ![](docs/json.png)
+
+Every pattern then matches one of three ways:
 
 - Plain text matches inside scalar values, such as `failed`.
 - A pattern starting with `$` matches a path exactly, such as `$.replicas`, or a path with the value written after an `=` without spaces, such as `$.service=payments`.
@@ -70,7 +72,7 @@ A pattern starting with `$.` or `$[` parses each file as a document in the forma
 
 Predicates compare numbers, strings, booleans, and RFC 3339 timestamps, and skip values that are null or of another type; `--strict` makes those an error instead. A quoted literal is always a string or a timestamp, so `== "2018"` matches the string `"2018"` and not the number `2018`.
 
-JSON Lines are searched like `jq` reads them: each value is its own document whose paths start at `$`, so a log with one event per line can be filtered with `'$.level == "error" AND $.latency_ms > 1000'`.
+JSON Lines are searched like `jq` reads them: each value is its own document whose paths start at `$` so a log with one event per line can be filtered with `'$.level == "error" AND $.latency_ms > 1000'`.
 
 ## Pretty Output
 
@@ -90,13 +92,11 @@ JSON Lines are searched like `jq` reads them: each value is its own document who
 
 ## Fuzzy and Boolean Predicate Search
 
-`-k N` also matches text within N edits of each pattern, which catches typos and OCR errors that an exact search misses. `--query` treats each pattern as a boolean query over the terms in a line, in any order, and highlights the terms that made the line match:
+`-k N` also matches text within N edits of each pattern which catches typos and OCR errors that an exact search misses. `--query` treats each pattern as a boolean query over the terms in a line, in any order, and highlights the terms that made the line match:
 
 ![](docs/fuzzy.png)
 
-## In-Memory Searcher APIs
-
-byteseek is substantially faster in-memory than on disk if the text is also loaded in-memory.
+## Searcher APIs
 
 ### Python
 
@@ -202,4 +202,4 @@ _Max's open-source projects are supported by his [Patreon](https://www.patreon.c
 
 MIT
 
-The MIT LICENSE for ripgrep is also included as its base benchmarking suite was used for calibration: no algorithmic code from ripgrep is intentionally implemented.
+The MIT LICENSE for ripgrep is also included as its base design and benchmarking suite were used for calibration: no library code from ripgrep is intentionally implemented.
