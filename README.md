@@ -44,6 +44,8 @@ uv pip install byteseek
 
 The Python package also installs the full `byteseek` command line, compiled into the package itself, so `byteseek` (or `python -m byteseek`) works without Cargo and takes the same flags as the native binary.
 
+Precompiled CLI binaries are also available for each platform [under their corresponding Release](https://github.com/minimaxir/byteseek/releases).
+
 ## Usage
 
 Run `byteseek` with a pattern to search every file under the current directory, skipping hidden files, binary files, and anything matched by a `.gitignore`. Any `ripgrep` command that uses literal patterns works unchanged, including `-e` for multiple patterns, `-i/-S` for case, `-w/-x` for whole words and lines, `-A/-B/-C` for context, `-c/-l/-o` for counts, files, and matches, `-g/-t` for globs and file types, and `--column/-0` for editors and `xargs`. `--sort recent` orders plain output by the file's last Git commit/last modified and `--sort path` orders it by path, as in `rg`.
